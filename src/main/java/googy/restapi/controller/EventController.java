@@ -1,6 +1,7 @@
 package googy.restapi.controller;
 
 import googy.restapi.domain.Event;
+import googy.restapi.dto.EventRequestDto;
 import googy.restapi.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
@@ -25,8 +26,8 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody Event event) {
-        Event resultEvent = eventService.createEvent(event);
+    public ResponseEntity createEvent(@RequestBody EventRequestDto eventDto) {
+        Event resultEvent = eventService.createEvent(eventDto);
         URI createdUri = linkTo(EventController.class)
                 .slash("{id}")
                 .toUri();
