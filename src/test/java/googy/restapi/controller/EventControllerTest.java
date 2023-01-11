@@ -2,7 +2,7 @@ package googy.restapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import googy.restapi.domain.Event;
-import org.hamcrest.Matchers;
+import googy.restapi.dto.EventRequestDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,20 +32,17 @@ class EventControllerTest {
 
     @Test
     public void createEvent() throws Exception {
-        Event event = Event.builder()
-                .id(100L)
+        EventRequestDto event = EventRequestDto.builder()
                 .name("Spring")
                 .description("REST API TEST")
                 .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
                 .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
                 .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
                 .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("seoul")
                 .basePrice(100L)
                 .maxPrice(200L)
                 .limitOfEnrollment(100L)
-                .location("잠실역")
-                .free(true)
-                .offline(false)
                 .build();
 
         mockMvc.perform(post("/api/v1/events")
@@ -58,7 +55,7 @@ class EventControllerTest {
     }
 
     @Test
-    public void dtoFilterTest() throws Exception {
+    public void badRequestOnAdditionalField() throws Exception {
         Event event = Event.builder()
                 .id(100L)
                 .name("Spring")
@@ -67,10 +64,10 @@ class EventControllerTest {
                 .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
                 .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
                 .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("seoul")
                 .basePrice(100L)
                 .maxPrice(200L)
                 .limitOfEnrollment(100L)
-                .location("잠실역")
                 .free(true)
                 .offline(true)
                 .build();
@@ -80,10 +77,21 @@ class EventControllerTest {
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").value(Matchers.not(100L)))
-                .andExpect(jsonPath("offline").value(Matchers.not(true)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
-                .andExpect(jsonPath("eventStatus").isEmpty());
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void emptyFieldIsOk() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 }
