@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -26,7 +27,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody EventRequestDto eventDto) {
+    public ResponseEntity createEvent(@RequestBody @Valid EventRequestDto eventDto) {
         Event resultEvent = eventService.createEvent(eventDto);
         URI createdUri = linkTo(EventController.class)
                 .slash("{id}")

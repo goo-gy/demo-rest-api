@@ -81,10 +81,9 @@ class EventControllerTest {
     }
 
     @Test
-    public void emptyFieldIsOk() throws Exception {
-        EventRequestDto event = EventRequestDto.builder()
-                .name("Spring")
-                .description("REST API TEST")
+    public void badRequestOnEmpty() throws Exception {
+            EventRequestDto event = EventRequestDto.builder()
+                    .name("Spring")
                 .build();
 
         mockMvc.perform(post("/api/v1/events")
@@ -92,6 +91,29 @@ class EventControllerTest {
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void badRequestOnMinusPrice() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("seoul")
+                .basePrice(-1L)
+                .maxPrice(200L)
+                .limitOfEnrollment(100L)
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
