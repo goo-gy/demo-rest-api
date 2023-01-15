@@ -82,8 +82,8 @@ class EventControllerTest {
 
     @Test
     public void badRequestOnEmpty() throws Exception {
-            EventRequestDto event = EventRequestDto.builder()
-                    .name("Spring")
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
                 .build();
 
         mockMvc.perform(post("/api/v1/events")
@@ -115,5 +115,106 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void whenMinMax0_thenFreeTrue() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("seoul")
+                .basePrice(0L)
+                .maxPrice(0L)
+                .limitOfEnrollment(100L)
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("free").value(true));
+    }
+
+    @Test
+    public void whenLocationExist_thenOfflineFalse() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("seoul")
+                .basePrice(100L)
+                .maxPrice(200L)
+                .limitOfEnrollment(100L)
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("offline").value(false));
+    }
+
+    @Test
+    public void whenLocationisEmpty_thenOfflineTrue() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location("")
+                .basePrice(100L)
+                .maxPrice(200L)
+                .limitOfEnrollment(100L)
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("offline").value(true));
+    }
+
+    @Test
+    public void whenLocationisNull_thenOfflineTrue() throws Exception {
+        EventRequestDto event = EventRequestDto.builder()
+                .name("Spring")
+                .description("REST API TEST")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .beginEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .closeEventDateTime(LocalDateTime.of(2023, 1, 1, 1, 1, 1))
+                .location(null)
+                .basePrice(100L)
+                .maxPrice(200L)
+                .limitOfEnrollment(100L)
+                .build();
+
+        mockMvc.perform(post("/api/v1/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("offline").value(true));
     }
 }

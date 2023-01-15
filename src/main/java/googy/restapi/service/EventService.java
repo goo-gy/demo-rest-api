@@ -20,6 +20,7 @@ public class EventService {
 
     public Event createEvent(EventRequestDto eventDto) {
         Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
         return eventRepository.save(event);
     }
 }
