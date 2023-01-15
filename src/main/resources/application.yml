@@ -1,4 +1,6 @@
 spring:
   jackson:
     deserialization:
-       fail-on-unknown-properties: true
+      fail-on-unknown-properties: true
+application:
+  version: 1.0.0
